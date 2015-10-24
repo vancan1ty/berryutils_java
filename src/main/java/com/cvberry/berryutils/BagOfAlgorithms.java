@@ -5,6 +5,7 @@ import java.util.function.BiPredicate;
 import java.util.function.DoubleBinaryOperator;
 
 import java.util.Arrays;
+import java.util.Random;
 
 /** Currell Berry mathematical utility methods
  *  written for CS 4635 project 1, because we aren't 
@@ -314,6 +315,8 @@ public class BagOfAlgorithms {
         return out;
     }
 
+    /** based on https://en.wikipedia.org/wiki/Gram%E2%80%93Schmidt_process#Numerical_stability
+     */
     public static double[][][] qr_gschmidt(double[][] mat) {
         int[] shp = mat_shape(mat);
 
@@ -324,23 +327,17 @@ public class BagOfAlgorithms {
         for (int n = 0; n < shp[1]; n++) {
             //first, get original column
             double[] ocol = mat_grab_column(mat,n);
-            //next, calculate ncol: ocol less the projections of ocol onto each of the previous ncols
+            //next, calculate evec: ocol less the projections of ocol onto each of the previous Q vectors
             double[] uk_est = Arrays.copyOf(ocol, ocol.length);
             for (int n1 = 0; n1 < n; n1++) {
-
                 double[] currentQCol = mat_grab_column(Q,n1);
-                double Qcol_ukest_dp = vec_dot_product(uk_est,currentQCol);
+                double Qcol_ocol_dp = vec_dot_product(ocol,currentQCol);
+                R[n1][n] = Qcol_ocol_dp;
 
-                double uk_est_magnitude = vec_dot_product(uk_est,uk_est);
-                double Q_col_magnitude = vec_dot_product(currentQCol,currentQCol);
-
-                double[] projection = vec_scalar_mult(Qcol_ukest_dp/uk_est_magnitude,uk_est);
-
-                uk_est = vec_sub(uk_est, projection);
-                double uk_est_norm = vec_norm(uk_est);
-
-                R[n1][n] = Qcol_ukest_dp;
-
+                //below is standard gram-schmidt
+                //uk_est = vec_sub(uk_est, vec_scalar_mult(Qcol_ocol_dp,currentQCol));
+                //below is modified gram-schmidt.  better stability supposedly.
+                uk_est = vec_sub(uk_est,  vec_proj_a_onto_e(uk_est,currentQCol));
             }
 
             double uk_est_norm = vec_norm(uk_est);
@@ -351,13 +348,32 @@ public class BagOfAlgorithms {
                 Q[m][n] = evec[m];
             }
         }
-        mat_print(mat, "input");
-        mat_print(Q, "Q");
-        mat_print(R, "R");
+        // mat_print(mat, "input");
+        // mat_print(Q, "Q");
+        // mat_print(R, "R");
 
         double[][][] out = new double[2][shp[0]][shp[1]];
         out[0] = Q;
         out[1] = R;
         return out;
     }
+
+
+    public static double[][] mat_rand(int height, int width) {
+        Random random = new Random();
+        long seed = random.nextLong();
+        return mat_rand(height,width,seed);
+    }
+
+    public static double[][] mat_rand(int height, int width, long seed) {
+        Random random = new Random(seed);
+        double[][] out = new double[height][width];
+        for (int m = 0; m < height; m++) {
+            for (int n = 0; n < width; n++) {
+                out[m][n] = random.nextDouble();
+            }
+        }
+        return out;
+    }
+
 }

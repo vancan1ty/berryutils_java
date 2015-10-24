@@ -2,7 +2,9 @@ package com.cvberry;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
+
 import java.util.Arrays;
+import java.util.Random;
 
 import static com.cvberry.berryutils.BagOfAlgorithms.*;
 
@@ -169,7 +171,7 @@ public class BagTest
     }
 
     @Test
-    public void test_qr() {
+    public void test_qr1() {
         double[][] mat = new double[][]{{12, -51, 4},
                                         {6, 167, -68},
                                         {-4, 24, -41}};
@@ -180,9 +182,25 @@ public class BagTest
         double[][] R = results[1];
 
         double[][] recomp = mat_mult(Q,R);
-        mat_print(recomp,"recomposed");
+        //mat_print(recomp,"recomposed");
         assertTrue(mat_equals(recomp,mat,0.0001));
     }
+
+    @Test
+    public void test_qr2() {
+        Random random = new Random();
+        long seed = random.nextLong();
+        System.out.format("qr2 -- using seed: %d\n", seed);
+        for (int i = 0; i < 25; i++) {
+            double[][] mat = mat_rand(8,8);
+            double[][][] factorization = qr_gschmidt(mat);
+            double[][] Q = factorization[0];
+            double[][] R = factorization[1];
+            double[][] recomp = mat_mult(Q,R);
+            assertTrue(mat_equals(recomp,mat,0.0001));
+        }
+    }
+
 
     @Test
     public void test_mult() {
@@ -204,7 +222,5 @@ public class BagTest
         assertFalse(mat_equals(mat_mult(omat,mat),matsquared,0.0001));
 
     }
-
-
 
 }
