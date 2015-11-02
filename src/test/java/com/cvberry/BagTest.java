@@ -75,7 +75,18 @@ public class BagTest
         double[][] tflipped = new double[][]{{7,8,9},
                                             {4,5,6},
                                             {1,2,3}};
+
+        double[][] mat2 = new double[][]{{1,2,3},
+                                         {1,1,1},
+                                         {4,5,6},
+                                         {7,8,9}};
+        double[][] tflipped2 = new double[][]{{7,8,9},
+                                            {4,5,6},
+                                            {1,1,1},
+                                            {1,2,3}};
+
         assertTrue(mat_equals(mat_flipud(mat1),tflipped));
+        assertTrue(mat_equals(mat_flipud(mat2),tflipped2));
     }
 
     @Test
