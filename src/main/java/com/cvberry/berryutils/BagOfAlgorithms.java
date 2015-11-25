@@ -587,17 +587,223 @@ public class BagOfAlgorithms {
         return out;
     }
 
+
+    //CB Graph stuff!
+    //----------------------------------------------
+    List<Integer> search_backwards(int[] prevarr, int index) {
+        List<Integer> out = new LinkedList<>(); 
+        int cursor = index;
+        int prev = prevarr[cursor];
+        while(cursor!=-2) {
+            out.add(cursor);
+            int temp = prevarr[cursor];
+            prev = cursor;
+            cursor = temp;
+        }
+        Collections.reverse(out);
+        out.reverse();
+        return out;
+    }
+
+    List<Integer> graph_search(List<List<Integer>> adjacents, int start, int end, Queue mqueue) {
+        int[] prevarr = new int[adjacents.size()];
+        for (int i = 0; i < adjacents.size(); i++) {
+            prevarr[i]=-1;
+        }
+        prevarr[0]=-2;
+        mqueue.add(start);
+        while(!mqueue.isEmpty()) {
+            int item = mqueue.remove();
+            if (item==end) {
+                return search_backwards(prevarr,end);
+            } else {
+                for (Integer a : adjacents.get(item)) {
+                    if (prevarr[a]==-1) { //unvisited
+                        prevarr[a] = item;
+                        mqueue.add(a);
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+
+//CB BigInteger example
+import java.io.*;
+import java.math.BigInteger;
+
+public static class Base {
+    public static void main(String [] args) {
+
+        // This will reference one line at a time
+        String line = null;
+
+        try {
+            BufferedReader bufferedReader = 
+                new BufferedReader(new InputStreamReader(System.in));
+
+            //discard first line
+            bufferedReader.readLine();
+            while((line = bufferedReader.readLine()) != null) {
+                String validBaseStr = "";
+
+                String[] segments = line.split(" ");
+                String num1 = segments[0];
+                String operator = segments[1];
+                String num2 = segments[2];
+                String resultnum = segments[4];
+
+                for (int base = 1; base <= 36; base++) {
+                    if (checkIfExpressionValidInBase(num1, num2, operator, resultnum, base))
+                        {
+                            if (base == 36) {
+                                validBaseStr += "0";
+                            } else {
+                                validBaseStr += Integer.toString(base,36);
+                            }
+                        }
+                }
+
+
+                if(validBaseStr.length() == 0) {
+                    System.out.println("invalid");
+                } else {
+                    System.out.println(validBaseStr);
+                }
+
+            }
+
+            // Always close files.
+            bufferedReader.close();         
+        }
+        catch(IOException ex) {
+             ex.printStackTrace();
+        }
+    }
+
+    //System.out.format("kval of 31: %d", computeKValueForNum(31));
+
+    // public static void main(String[] args) {
+    //     String tcase = "111";
+    //     BigInteger num1 = new BigInteger(tcase, 2);
+    //     System.out.println(java.lang.Character.MAX_RADIX);
+    //     System.out.println(java.lang.Character.MIN_RADIX);
+
+    //     System.out.format("11 valid %b\n", checkIfBase1Valid("11"));
+    //     System.out.format("10 valid %b\n", checkIfBase1Valid("10"));
+    //     System.out.println(num1);
+    // }
+
+
+    public static boolean checkIfExpressionValidInBase(String num1, String num2, String operand, String result, int base) {
+        if (!checkIfStrValidInBase(num1, base) ||
+            !checkIfStrValidInBase(num2, base) ||
+            !checkIfStrValidInBase(result, base)) {
+            return false;
+        }
+
+        if (base==1) {
+
+            //check if computations add up
+            int a = num1.length();
+            int b = num2.length();
+            int c = result.length();
+            boolean valid;
+            switch(operand) {
+            case("+"): 
+                valid = (a+b==c);
+                break;
+            case("-"): 
+                valid = (a-b==c);
+                break;
+            case("*"): 
+                valid = (a*b==c);
+                break;
+            case("/"): 
+                valid = ((a/b==c) && (a%b==0));
+                break;
+            default:
+                throw new RuntimeException("what!");
+            }
+            return valid;
+        } else {
+            //check if computations add up
+            BigInteger a = new BigInteger(num1, base);
+            BigInteger b = new BigInteger(num2, base);
+            BigInteger c = new BigInteger(result, base);
+            boolean valid;
+            switch(operand) {
+            case("+"): 
+                valid = (a.add(b).equals(c));
+                break;
+            case("-"): 
+                valid = (a.subtract(b).equals(c));
+                break;
+            case("*"): 
+                valid = (a.multiply(b).equals(c));
+                break;
+            case("/"): 
+                valid = (a.divide(b).equals(c) && a.remainder(b).equals(BigInteger.ZERO));
+                break;
+            default:
+                throw new RuntimeException("what!");
+            }
+
+            return valid;
+            }
+        }
+    
+
+    public static boolean checkIfStrValidInBase(String str, int base) {
+        boolean valid = true;
+        if (base == 1) {
+            valid = checkIfBase1Valid(str);
+        } else {
+            try {
+                BigInteger i = new BigInteger(str, base);
+            } catch (Exception e) {
+                valid = false;
+            }
+        }
+
+        return valid;
+    }
+
+    public static boolean checkIfBase1Valid(String str) {
+        boolean valid = true;
+        for (int i = 0; i < str.length(); i++) {
+            if (str.charAt(i) != '1') {
+                valid = false;
+                break;
+            }
+        }
+        return valid;
+    }
+
 }
 
-//linearSolveSquare seed: 2649078803596194174
-// A = np.matrix(
-//           [[0.489605,0.173206,0.046936],
-//            [0.361378,0.878040,0.088176],
-//            [0.545823,0.193877,0.908471]])
+import java.util.*;
+public static class Generator {
 
-// b = np.array([0.170023,0.439159,0.602410])
+    public static void main(String[] args) {
+        int numToPrint = Integer.parseInt(args[0]);
+        Random random = new Random();
+        System.out.println(numToPrint);
+        for (int i = 0; i < numToPrint-1; i++) {
+            int nextNum = Math.round(random.nextFloat()*2000);
+            System.out.format("%d ", nextNum);
+        }
+        int nextNum = Math.round(random.nextFloat()*2000);
+        System.out.format("%d\n",nextNum);
+    }
 
-    //solution =
-    //-1.434132 
-    //1.018217 
-    //1.053430 
+    // public static void main(String[] args) {
+    //     System.out.println('9');
+    //     System.out.println('8');
+    // }
+
+}
+
+}
